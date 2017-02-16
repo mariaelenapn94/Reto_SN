@@ -1,0 +1,58 @@
+RETO FINAL: MAPA DE CAMBIO DE USO DE SUELO DE SIERRA NEVADA
+
+El objetivo del proyecto es ver como ha cambiado el uso de suelo en Sierra Nevada desde un punto estructural, funcional y de servicios ecosistémicos. 
+En este trabajo en concreto se han evaluado estos cambios teniendo en cuenta la antropización o naturalización que han sufrido los suelos del entorno de Sierra Nevada.
+
+Los datos que se nos proporcinaron:
+	
+	- Shape de Sierra Nevada
+	- Datos de uso de suelo de 1956
+	- Datos de uso de suelo de 1999
+	- Datos de uso de suelo de 2003
+	- Diccionario de los usos de suelo
+
+Primero de todo tuvimos que resolver la integridad entre distintos campos para poder proceder con la ejecución del proyecto. 
+
+Una vez que solventamos la integridad  decidimos cuales son los datos que se van a trabajar.
+Se ha decidido trabajar con este rango de tiempo ya que los mayores cambios han sucedido durante este periodo. Además, el rango de tiempo entre el año 1999 y 2003 no es muy extenso y creemos que un periodo más largo será más completo.
+Así mismo, queremos comprobar si la incorporación de las figuras de protección de parque natural (1989)y nacional (1999) han influido en el uso de suelos. En el caso de que usasemos los datos del año 1999 puede que no se apreciasen los cambios relativos a la instauración de políticas de conservación.
+
+Sabiendo que los datos que usaremos se procede a hacer el análisis del cambio de uso del suelo entre el año 1956 y 2003.
+
+Se procede a ver qué polígonos de la base de datos han sufrido un cambio de uso desde el año 1956 al 2003 
+Para ello se restan  los valores de UC de distintos años, se crea una nueva tabla de consulta: "Cambios5603_resta"
+
+	#Si el resultado = 0 --> Significa que los valores para los 2 años son =, por lo que no ha habido cambio en el uso.
+	#Si el resultado NO ES 0 --> Ha habido un cambio en el uso de suelo.
+
+Posteriormente, se crea una nueva tabla de consulta: "Cambios_03_56_Reto"
+Para ello se crea un gradiente de cambio de uso desde el año 1956 al 2003. Se crea un rango de valores en la leyenda de usos de cobertura (UC) para evaluar y reflejar el grado de cambio de uso de cobertura en cada polígono. 
+Como nuestro objetivo es ver la antropización o naturalización que ha sufrido el terreno, se creará un campo nuevo en la tabla UC que represente el grado de antropización.
+Este nuevo campo se crea de la siguiente forma:
+
+En tabla diccionario de usos de suelo hemos decidido que los ecosistemas que tengan un uso antrópico irá de 0 a 4 mientras que los que tengan un uso más silvestre-natural irán de 5 a 8. Mirar tabla adjunta
+	
+Se crea una nueva consulta donde se relacionan los valores de rango de uso de cobertura con los valores de los códigos y después con valores de la tabla principal
+Esta consulta se llama naturalización y aparecen campos con los valores de la naturalización y descripciones del estado del polígono tanto en el año 1956 como 2003
+El gradiente de valores va entre 0 y 10. 
+
+Posteriormente se hace la resta de los campos entre 2003 y 1956. como nuestro objetivo es ver la naturalización de la zona los valores más positivos son los que corresponden a un mejor estado de conservación. 
+Para conseguir que los valores más positivos sean los más naturalizados la resta consiste en 2003-1956.
+
+A continuación se exporta las base de datos en formato txt, el cual cambiaremos a csv después de hacer algunos cambios. Estos cambios se efectuan para no tener problemas en el qgis.
+Primero, quitaremos los decimales,cambiamos los , (comas) que aparecen en la descripción por y (la letra y ) y por último los separadores de campo se convertiran en ,(coma)( para no tener problemas a la hora de cambiar los comas de la descrición primero hemos convertido estas en asteriscos).
+Además, se cambia el formato de campo en función de texto o número usando otro documento csvt donde hemos definido el tipo de cada campo. 
+
+En QGIS importamos la capa de Usos de Sierra Nevada. A continuación cargamos el fichero csv con los cambios entre 1956 y 2003. Para visualizar ambas capas a la vez, realizamos una unión entre ambas y guardamos esta capa para hacer factibles los cambios. 
+A continuación, cambiamos el estilo a graduado, escogiendo una rampa de color en el que se puedan apreciar los cambios. Seleccionamos rupturas naturales y una rampa de 10 clases. Una vez tengamos estos cambios realizados, guardamos la capa para trabajar con esta.
+Posteriormente realizamos una consulta espacial para poder ver los polígonos que han sufrido mayor grado de naturalización. 
+La consulta se realizará con la siguiente fórmula: "Shape_Area" > 100000 AND "d_03_56__4"  >= 5. 
+
+Esto quiere decir que mostrará los polígonos mayores de 100000m2 = 10 Ha debido a la escala de clasificacion que hemos usado con el rango 0-8 de mas antropico a naturalizado elegimos los poligonos en los que el cambio ha sido igual o mayor a 5 y de esta forma nos aseguramos que han sufrido cambio de antropico a naturalizado.
+Debido a la resta que hemos hecho los valores más negativos representan la antropización mientras que los valores más positivos muestran la naturalización que ha sufrido el poligono. Graficamente esto se visualiza con los colores más rojos antro y verde naturalización.
+En la imagen aparece una franja blanca que está relaciada con la falta de datos de 1956. Como no había estos datos en el access hemos decidido quitar estos poligonos. 
+
+
+Para acabar con qgis se hace una capa de centroides que muestra el centro de los poligonos y posteriormente esto se usará para cargar en google earth engine. 
+
+
